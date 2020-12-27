@@ -3,7 +3,7 @@
 library(RCurl)
 RoitURL <- "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/DIAMOND/II?page=1&api_key=RGAPI-7b4230d4-2f07-482d-af29-499b33e3adac"
 ## 인증키
-apikey <- "RGAPI-7b4230d4-2f07-482d-af29-499b33e3adac"
+apikey <- "RGAPI-7b4230d4-2f07-482d-af29-499b33e3adac" #
 url <-paste0(RoitURL,
              paste0("?api_key=", apikey)
 )
