@@ -1,0 +1,26 @@
+#티어등급별 유저 모으기
+
+apikey <- "RGAPI-c3401998-bbd3-4910-8c9f-815a8de58c48"
+p3 <- NULL
+for(i in 1:2) {
+RoitURL <- paste0("https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/PLATINUM/IV?page=",i)
+url <-paste0(RoitURL,
+             paste0("&api_key=", apikey)
+)
+page <- getURL(url)
+page<-fromJSON(page)
+p3<- rbind(p3,page)
+
+}
+
+
+#csv파일로 만들기
+class(p3)
+ch.p3=as.character(p3)
+class(ch.p3)
+d=fromJSON(ch.p3)
+class(d)
+df=data.frame(d)
+class(df)
+df2=as.matrix(df)
+write.csv(p3,"33.csv")
