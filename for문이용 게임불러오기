@@ -1,0 +1,107 @@
+rm(list=ls())
+library(RCurl)
+library(jsonlite)
+
+#그마,마스터,첼린저 유저들 불러와서 묶기
+apikey <- "RGAPI-24641c98-0785-4b0f-b027-a29297564af3"
+
+master <- paste0("https://kr.api.riotgames.com/lol/league/v4/masterleagues/by-queue/RANKED_SOLO_5x5?api_key=",apikey)
+grandmaster <- paste0("https://kr.api.riotgames.com/lol/league/v4/grandmasterleagues/by-queue/RANKED_SOLO_5x5?api_key=",apikey)
+challenger <- paste0("https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=",apikey)
+
+
+league <- getURL(challenger)
+league<-fromJSON(league)
+league<-data.frame(league)
+
+league2<- getURL(grandmaster)
+league2<-fromJSON(league2)
+league2<-data.frame(league2)
+
+q<-rbined(league,league2)
+
+league3<- getURL(master)
+league3<-fromJSON(league3)
+league3<-data.frame(league3)
+
+q<-rbind(q,league3)
+head(q)
+str(q)
+nrow(q)
+#write.csv(q,"qqqq.csv")
+
+
+
+
+# league.to_csv("LeagueData.csv")
+##################################################################################
+
+#summonerid로 accountid찾아서 모으기     
+#for(i in nrow(q))
+accountid<-NULL
+for(i in 1:2) {
+  api_url = paste0("https://kr.api.riotgames.com/lol/summoner/v4/summoners/",q$entries.summonerId[i],"?api_key=",apikey)
+  url = getURL(api_url)
+  url<-fromJSON(url)
+  url<-data.frame(url)
+  accountid<-rbind(accountid,url)
+}
+
+accountid
+str(accountid)
+#write.csv(accountid,"11111111111.csv")
+
+####################################################################################
+#accountid로 게임리스트불러오기
+
+match<-NULL
+for(i in 1:2) {
+  api_url = paste0("https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/",accountid$accountId[i],"?queue=420&season=13&api_key=",apikey)
+  url = getURL(api_url)
+  url<-fromJSON(url)
+  url<-data.frame(url)
+  match<-rbind(match,url)
+}
+match
+
+#write.csv(match,"222222222222.csv")
+##########################################################
+game<- NULL
+
+for(i in 1:2) {
+  api_url=paste0("https://kr.api.riotgames.com/lol/match/v4/matches/",match$matches.gameId[1],"?api_key=",apikey)
+  url<- getURL(api_url)
+  j_url<-fromJSON(url)
+  View(j_url)
+  d_url<-as.data.frame(j_url)
+  
+  
+  
+  
+  u_url<-unlist(j_url)
+  m_url<-as.matrix(u_url)
+  d_url<-data.frame(m_url)
+  game<-rbind(game,d_url)
+  }
+
+View(game)
+write.csv(game,"3333333333333.csv")
+
+
+#############################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
