@@ -1,0 +1,26 @@
+
+
+
+
+
+6 -> top
+7 -> sup
+8 -> junglehttps://files.slack.com/files-pri/T01E9E3T4BB-F01HYJS7PCP/image.pnghttps://files.slack.com/files-pri/T01E9E3T4BB-F01HYJS7PCP/image.png
+9 -> bot_carry
+10 -> bot_carry
+len(unique(top, sup, jungle, bot_carry)) -> 4
+bot_carry -> 2
+9, 10행의 각 두번째 포지션 점수
+두번째 포지션
+blue team
+        bot_carry_id /  sup_id / 시야점수 / 데미지 / 골드 획득량 / 제어와드 구매 개수  / real_win_percent / 실제 승률
+row1                                                                                        블루            블루
+row2                                                                                        레드            블루
+row3                                                                                        블루            블루
+row4
+통계 : t-test, 카이제곱,
+머신러닝 : 선형회귀, 로지스틱,
+골드 획득량
+챔프 베이스 승률 (조합 기준)
+( 바텀 조합 제거 후 학습 ) 승리의 정확도 %
+( 바텀 조합 추가한 뒤 학습 ) -> 승리의 정확도 %
