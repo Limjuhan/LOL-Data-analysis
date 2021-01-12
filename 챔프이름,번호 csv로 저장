@@ -1,0 +1,19 @@
+cham_no<-getURL("http://ddragon.leagueoflegends.com/cdn/10.25.1/data/en_US/champion.json")
+champ<-fromJSON(cham_no)
+champ<-champ[[4]]
+View(champ)
+c4<-NULL
+for(i in 1:153) {
+  c1<-champ[[i]][4]
+  c2<-champ[[i]][3]
+  c3<-cbind(c1,c2)
+  c4<-rbind(c3,c4)
+}
+View(c4)
+c5<-as.data.frame(c4)
+View(c5)
+colnames(c5)<-c("name","number")
+
+write.csv(c5,"champ.csv")
+c6<-as.matrix(c5)
+write.csv(c6,"champ.csv")
