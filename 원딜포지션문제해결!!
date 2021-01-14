@@ -1,0 +1,214 @@
+cm<-read.csv("champ.csv")#챔프이름,번호 csv
+
+c1<-read.csv("77.csv")#gameid있는 csv
+c2<-c1 %>% filter(gameDuration>=1200)
+
+d1<-unique(c2$gameId)
+#mat_id<-d1[1]
+
+j=1
+k=1
+game<-NULL
+df_lane<-NULL
+bot<-NULL
+
+for(k in 1:5){
+  mat_id<-d1[k]
+  df_lane<-NULL
+  #게임내용관련데이터 칼럼불러오기
+  RoitURL_mat <- paste0("https://kr.api.riotgames.com/lol/match/v4/matches/",mat_id)#,matches.gameId
+  url_mat <-paste0(RoitURL_mat, paste0("?api_key=", apikey))
+  j_mat<-fromJSON(getURL(url_mat))
+ 
+  #좌표관련데이터 칼럼불러오기
+  RoitURL_mat_lane <- paste0("https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/",mat_id)#,matches.gameId
+  url_mat_lane <-paste0(RoitURL_mat_lane, paste0("?api_key=", apikey))
+  j_mat_lane<-fromJSON(getURL(url_mat_lane))
+  
+  
+  a99<-j_mat[["gameId"]]
+  a0<-j_mat[["gameVersion"]]
+  a1<-j_mat[[12]][[6]][10]
+  a2<-j_mat[[12]][[6]][11]
+  a3<-j_mat[[12]][[6]][12]
+  a4<-j_mat[[12]][[6]][22]
+  a5<-j_mat[[12]][[6]][36]
+  a6<-j_mat[[12]][[6]][38]
+  a7<-j_mat[[12]][[6]][42]
+  a8<-j_mat[[12]][[6]][52]
+  a9<-j_mat[["participants"]][["stats"]][["win"]]
+  a10<-j_mat[["participants"]][["championId"]]  
+  
+  a11<-NULL
+  for (c in c(1:10)){
+    qwer<-cm %>% filter(number == a10[c]) %>% select(name)
+    a11<-rbind(a11,qwer)  
+    qwer<-NULL
+  }
+  
+ 
+  
+               
+  j=1
+  for(j in c(1:10)){
+    
+    a<-j_mat_lane[["frames"]]
+    z1<-NULL
+    z1$x<-a$participantFrames[,j]$position[,1]
+    z1$y<-a$participantFrames[,j]$position[,2]
+    z1<-as.data.frame(z1)
+    z1<-head(z1,20)
+    z1<-z1[-1,]
+    
+    i=1
+    TOP<-0
+    JUNGLE<-0
+    MID<-0
+    BOT_CARRY<-0
+    SUP<-0
+    lane<-data.frame(TOP,JUNGLE,MID,BOT_CARRY,SUP)
+  #   install.packages("png")
+  #   library(png)
+  #   m<-readPNG("map11.png")
+  #   class(m)
+  #   dim(m)
+  #   m<-as.raster(m[,,1:3])
+  #   class(m)
+  #   dim(m)
+  # plot(-120:15000, type='n')
+  # m<-rasterImage(as.raster(m[,,]), -120, -120, 15000, 15000, interpolate=FALSE)
+  # plot(m)
+  # z1 %>% ggplot(aes(x=x, y=y)) + geom_point()+xlim(-120,14870)+ylim(-120,14980)
+    
+    if (j_mat[["participants"]][["spell1Id"]][j]==11 |
+        j_mat[["participants"]][["spell2Id"]][j]==11 ){
+      lane$JUNGLE<-lane$JUNGLE+50 #강타
+      lane$BOT_CARRY<-lane$BOT_CARRY-5                                
+    }else if (j_mat[["participants"]][["stats"]][["visionScore"]][j]==max(j_mat[["participants"]][["stats"]][["visionScore"]][c(1:5)]) |
+              j_mat[["participants"]][["stats"]][["visionScore"]][j]==max(j_mat[["participants"]][["stats"]][["visionScore"]][c(6:10)])){
+      lane$SUP<-lane$SUP+50#시야점수
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]==12 |
+        j_mat[["participants"]][["spell2Id"]][j]==12 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY-7#텔포
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]==7 |
+        j_mat[["participants"]][["spell2Id"]][j]==7 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#힐
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]==1 |
+        j_mat[["participants"]][["spell2Id"]][j]==1 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY+2#클린즈
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]!=4 |
+         j_mat[["participants"]][["spell2Id"]][j]!=4 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY-10#점멸
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]==14 |
+        j_mat[["participants"]][["spell2Id"]][j]==14 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY-8#점화
+    }
+    if (j_mat[["participants"]][["spell1Id"]][j]==3 |
+        j_mat[["participants"]][["spell2Id"]][j]==3 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY-8#탈진
+    }
+    
+    if (j_mat[["participants"]][["championId"]][j] == 145 |
+        j_mat[["participants"]][["championId"]][j] == 202 |
+        j_mat[["participants"]][["championId"]][j] == 360 |
+        j_mat[["participants"]][["championId"]][j] == 21 |
+        j_mat[["participants"]][["championId"]][j] == 22 |
+        j_mat[["participants"]][["championId"]][j] == 523 |
+        j_mat[["participants"]][["championId"]][j] == 81 |
+        j_mat[["participants"]][["championId"]][j] == 119 |
+        j_mat[["participants"]][["championId"]][j] == 51 |
+        j_mat[["participants"]][["championId"]][j] == 429 |
+        j_mat[["participants"]][["championId"]][j] == 29 |
+        j_mat[["participants"]][["championId"]][j] == 222 |
+        j_mat[["participants"]][["championId"]][j] == 498 |
+        j_mat[["participants"]][["championId"]][j] == 110 |
+        j_mat[["participants"]][["championId"]][j] == 96 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#챔프 가산점
+    }
+    
+    if (j_mat[["participants"]][["championId"]][j] == 67 &
+        j_mat[["participants"]][["spell1Id"]][j]==7 |
+        j_mat[["participants"]][["spell2Id"]][j]==7
+        ){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#베인
+    }
+    
+    if (j_mat[["participants"]][["championId"]][j] == 236 &
+        j_mat[["participants"]][["spell1Id"]][j]==7 |
+        j_mat[["participants"]][["spell2Id"]][j]==7){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#루시안
+    }
+    
+    if (j_mat[["participants"]][["championId"]][j] == 18 &
+        j_mat[["participants"]][["spell1Id"]][j]==7 |
+        j_mat[["participants"]][["spell2Id"]][j]==7 ){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#트타
+    }
+    
+    if (j_mat[["participants"]][["championId"]][j] == 235 &
+        j_mat[["participants"]][["spell1Id"]][j]==7 |
+        j_mat[["participants"]][["spell2Id"]][j]==7){
+      lane$BOT_CARRY<-lane$BOT_CARRY+6#세나
+    }
+    
+    
+    for(i in c(1:11)){
+      if (z1$x[i]>=600 & z1$x[i]<=1800 &
+          z1$y[i]>=8400 & z1$y[i]<=14100) {
+        lane$TOP<-lane$TOP+1
+      }
+      else if (z1$x[i]>=600 & z1$x[i]<=4500 &
+               z1$y[i]>=10200 & z1$y[i]<=14400) {
+        lane$TOP<-lane$TOP+3
+      }
+      else if (z1$x[i]>=900 & z1$x[i]<=6000 &
+               z1$y[i]>=13200 & z1$y[i]<=14400) {
+        lane$TOP<-lane$TOP+1
+      }
+      else if (z1$x[i]>=4850 & z1$x[i]<=10000 &
+               z1$y[i]>=4850 & z1$y[i]<=12000)  {
+        lane$MID<-lane$MID+1
+      }
+      else if (z1$x[i]>=5600 & z1$x[i]<=8850 &
+               z1$y[i]>=6000 & z1$y[i]<=8700) {
+        lane$MID<-lane$MID+3
+      }
+      
+      else if (z1$x[i]>=6500 & z1$x[i]<=9600 &
+               z1$y[i]>=7000 & z1$y[i]<=9300){
+        lane$MID<-lane$MID+1
+      }
+      else if (z1$x[i]>=3800 & z1$x[i]<=6600 &
+               z1$y[i]>=4500 & z1$y[i]<=6700){
+        lane$MID<-lane$MID+1
+      }
+      else if (z1$x[i]>=5000 & z1$x[i]<=10000 &
+               z1$y[i]>=200 & z1$y[i]<=15000){
+        lane$BOT_CARRY<-lane$BOT_CARRY+1
+      }
+      else if (z1$x[i]>=10000 & z1$x[i]<=14700&
+               z1$y[i]>=600 & z1$y[i]<=5000){
+        lane$BOT_CARRY<-lane$BOT_CARRY+2
+      }
+      else if (z1$x[i]>=5000 & z1$x[i]<=14700&
+               z1$y[i]>=1350 & z1$y[i]<=14700) {
+        lane$BOT_CARRY<-lane$BOT_CARRY+2
+      }
+      else{
+        lane$MID<-lane$MID+1
+      }
+      
+    } #for (i in 1:15)
+   df_lane<-rbind(df_lane,lane)
+   
+  } #for (j in 1:10)
+  
+  bot<-cbind(a99,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,df_lane)
+  game<-rbind(game, bot)
+  bot<-NULL
+} # for (k in 1:10)
