@@ -1,0 +1,28 @@
+#gameid이용해서 게임내용 불러오기
+match<-read.csv("master_matchid.csv")
+View(match)
+str(match)
+m<-unique(match$matches.gameId)
+length(m)
+
+game<- NULL
+p<-1
+
+for(p in c(1:10)){
+  ababab<-try(
+for(i in 1:21064) {
+  api_url=paste0("https://kr.api.riotgames.com/lol/match/v4/matches/",match$matches.gameId[i],"?api_key=",apikey)
+  url<- getURL(api_url)
+  j_url<-fromJSON(url)
+  u_url<-unlist(j_url)
+  m_url<-as.matrix(u_url)
+  d_url<-data.frame(m_url)
+  d_url2<-t(d_url)
+  game<-merge(d_url2,game, all=TRUE)
+}
+,silent = T
+)
+  if(class(ababab)=="try-error"){
+    Sys.sleep(120)
+  }
+}
