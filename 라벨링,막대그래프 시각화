@@ -1,0 +1,47 @@
+game2<-read.csv("game1.csv")
+head(game2,20)
+View(game2)
+##TRUE,FALSE -> 1,0 으로 교체후 숫자형으로 변환
+game2$Win<-str_replace_all(game2$Win,"TRUE","1")
+game2$Win<-str_replace_all(game2$Win,"FALSE","0")
+game2$Win<-as.factor(game2$Win)
+
+game2$FBK<-str_replace_all(game2$FBK,"TRUE","1")
+game2$FBK<-str_replace_all(game2$FBK,"FALSE","0")
+game2$FBK<-as.factor(game2$FBK)
+
+game2$DRG<-str_replace_all(game2$DRG,"TRUE","1")
+game2$DRG<-str_replace_all(game2$DRG,"FALSE","0")
+game2$DRG<-as.factor(game2$DRG)
+
+
+str(game2)
+game2 <- game2 %>% rename(gameid=a99)
+
+
+game3<-game2[,c(2,7,8,11:21)] #수치형만 game3에 할당
+View(game3)
+View(game2)
+################################
+#챔프들 라벨인코딩
+factors<-factor(game2$name)
+factors<-as.numeric(factors)
+game2$label <- factors
+####################
+#상관관계 분석
+cor(game3)
+chart.Correlation(game3, histogram=TRUE, pch=19)
+pairs.panels(game3)
+
+#막대그래프 그려보기
+game2$Win<-as.numeric(game2$Win)
+
+View(game2)
+game2 %>%
+  group_by(name) %>%
+  filter(Win==2) %>%
+  dplyr::summarise(sum=(sum(Win)/(nrow(game2)))/2 * 100) %>%
+  arrange(desc(sum)) %>%
+  head(15) %>%
+  ggplot(aes(x=name,y=sum,fill=factor(name))) +
+  geom_bar(stat="identity",position = "dodge")
